@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: Wood
   m_EditorClassIdentifier: 
   objectName: Wood
+  objectPrefab: {fileID: 3962181803617259637, guid: d39bb67b99928ac4da0a4cc098a93b30,
+    type: 3}
   objectImage: {fileID: 21300000, guid: e5ced21b556fcb44284a9a1b5a74fb46, type: 3}
   objectValue: 1
   objectID: 0

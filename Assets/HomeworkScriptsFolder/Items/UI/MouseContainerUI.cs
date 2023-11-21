@@ -12,7 +12,9 @@ public class MouseContainerUI : MonoBehaviour
     [Header("References")]
     public Image itemImage;
     public TextMeshProUGUI itemValueText;
-    public EquipmentSlot equipObject;
+    
+    public ObjectInformationSO objectInformationSO;
+    public int currentStackValue;
 
     private Vector3 mouseContainerOffset = new Vector3(35, -30, 0);
     private bool isTaken;
@@ -33,19 +35,21 @@ public class MouseContainerUI : MonoBehaviour
         transform.position = Input.mousePosition + mouseContainerOffset;
     }
 
-    public void TryToSetMouseContainerEquipObject(EquipmentSlot equipObject, Sprite itemSprite, int currentStackValue)
+    public void TryToSetMouseContainerEquipObject(ObjectInformationSO objectInformationSO, int currentStackValue)
     {
-        if (this.equipObject != null) return;
-        this.equipObject = equipObject;
+        if (this.objectInformationSO != null) return;
+        this.objectInformationSO = objectInformationSO;
+        this.currentStackValue = currentStackValue;
         isTaken = true;
         itemImage.enabled = true;
-        itemImage.sprite = itemSprite;
+        itemImage.sprite = objectInformationSO.objectImage;
         itemValueText.text = currentStackValue.ToString();
     }
 
     public void ClearMouseContainer()
     {
-        equipObject = null;
+        objectInformationSO = null;
+        currentStackValue = 0;
         isTaken = false;
         itemImage.enabled = false;
         itemImage.sprite = null;
@@ -54,14 +58,14 @@ public class MouseContainerUI : MonoBehaviour
 
     public int GetMouseEquipmentObjectID()
     {
-        if(equipObject == null) Debug.LogError("Called GetMouseEquipmentObjectID() without equipObject!");
-        return equipObject.baseObject.GetObjectInfoSO().objectID;
+        if(objectInformationSO == null) Debug.LogError("Called GetMouseEquipmentObjectID() without objectInformationSO!");
+        return objectInformationSO.objectID;
     }
     
     public int GetMouseEquipmentCurrentStackValue()
     {
-        if(equipObject == null) Debug.LogError("Called GetMouseEquipmentCurrentStackValue() without equipObject!");
-        return equipObject.currentStackValue;
+        if(objectInformationSO == null) Debug.LogError("Called GetMouseEquipmentCurrentStackValue() without objectInformationSO!");
+        return currentStackValue;
     }
     
     public bool IsMouseContainerTaken()

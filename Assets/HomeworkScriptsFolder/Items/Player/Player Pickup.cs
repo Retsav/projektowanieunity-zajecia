@@ -6,7 +6,7 @@ using UnityEngine;
 public class PlayerPickup : MonoBehaviour
 {
     public static PlayerPickup Instance { get; private set; }
-    public event Action<BaseObject> OnObjectPickedUp; 
+    public event Action<ObjectInformationSO, int> OnObjectPickedUp; 
     
     [SerializeField] private float playerItemDetectionRadius = 1f;
     [SerializeField] private LayerMask layerMask;
@@ -30,13 +30,21 @@ public class PlayerPickup : MonoBehaviour
 
     private void Update()
     {
+        PickupObject();
+    }
+
+    private void PickupObject()
+    {
         Collider[] hitColliders = Physics.OverlapSphere(transform.position, playerItemDetectionRadius, layerMask);
         foreach (Collider hitCollider in hitColliders)
         {
             if (hitCollider.TryGetComponent(out BaseObject baseObject))
             {
-                OnObjectPickedUp?.Invoke(baseObject);
-                Destroy(baseObject.gameObject);
+                if (baseObject.IsPickable())
+                {
+                    OnObjectPickedUp?.Invoke(baseObject.GetObjectInfoSO(), baseObject.GetStackValue());
+                    Destroy(baseObject.gameObject);   
+                }
             }
         }
     }

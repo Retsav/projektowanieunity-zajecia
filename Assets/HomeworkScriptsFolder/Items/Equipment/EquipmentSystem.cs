@@ -1,13 +1,14 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class EquipmentSystem : MonoBehaviour
 {
     public event Action<EquipmentSlot, int> OnObjectListChanged;
     public static EquipmentSystem Instance { get; private set; }
-    [SerializeField] private List<EquipmentSlot> equipmentObjectList = new();
+    [SerializeField] private EquipmentSlot[] equipmentObjectArray = new EquipmentSlot[20];
 
     private const int MAX_SLOTS_COUNT = 20;
 
@@ -26,43 +27,48 @@ public class EquipmentSystem : MonoBehaviour
         PlayerPickup.Instance.OnObjectPickedUp += PlayerPickup_OnOnObjectPickedUp;
     }
 
-    private void PlayerPickup_OnOnObjectPickedUp(BaseObject baseObject)
+    private void PlayerPickup_OnOnObjectPickedUp(ObjectInformationSO objectInfoSO, int objectStackValue)
     {
-        EquipmentSlot itemObject = new EquipmentSlot(baseObject, baseObject.GetStackValue());
-        if (equipmentObjectList.Contains(itemObject)) return;
-        if (equipmentObjectList.Count >= MAX_SLOTS_COUNT) return;
-        if (equipmentObjectList.Count == 0)
+        EquipmentSlot itemObject = new EquipmentSlot(objectInfoSO, objectStackValue);
+        for (int i = 0; i <= equipmentObjectArray.Length; i++)
         {
-            equipmentObjectList.Add(itemObject);
-            OnObjectListChanged?.Invoke(itemObject, itemObject.currentStackValue);
-            return;
-        }
-        foreach (EquipmentSlot equipmentSlot in equipmentObjectList)
-        {
-            if (itemObject.baseObject.GetObjectInfoSO().objectID == equipmentSlot.baseObject.GetObjectInfoSO().objectID)
+            if (equipmentObjectArray[i].objectInformationSO == null)
             {
-                equipmentSlot.currentStackValue += itemObject.baseObject.GetStackValue();
-                int totalStackValue = equipmentSlot.currentStackValue;
-                OnObjectListChanged?.Invoke(itemObject, totalStackValue);
-            }
-            else
-            {
-                equipmentObjectList.Add(itemObject);
+                equipmentObjectArray[i].objectInformationSO = objectInfoSO;
+                equipmentObjectArray[i].currentStackValue = objectStackValue;
                 OnObjectListChanged?.Invoke(itemObject, itemObject.currentStackValue);
+                break;
+            }
+            if(itemObject.objectInformationSO.objectID == equipmentObjectArray[i].objectInformationSO.objectID)
+            {
+                equipmentObjectArray[i].currentStackValue += objectStackValue;
+                int totalStackValue = equipmentObjectArray[i].currentStackValue;
+                OnObjectListChanged?.Invoke(itemObject, totalStackValue);
+                break;
             }
         }
     }
 
-    public void RemoveEquipmentObjectFromList(EquipmentSlot equipmentItem)
+    public void RemoveEquipmentObjectFromArray(int slotID)
     {
-        if (equipmentObjectList.Contains(equipmentItem))
-        {
-            equipmentObjectList.Remove(equipmentItem);
-        }
+        equipmentObjectArray[slotID].objectInformationSO = null;
+        equipmentObjectArray[slotID].currentStackValue = 0;
     }
     
-    public void AddEquipmentObjectToList(EquipmentSlot equipmentItem)
+    public void AddEquipmentObjectToList(ObjectInformationSO objectInformationSOToAdd, int currentStackValue, int slotID)
     {
-        equipmentObjectList.Add(equipmentItem);
+        equipmentObjectArray[slotID].objectInformationSO = objectInformationSOToAdd;
+        equipmentObjectArray[slotID].currentStackValue = currentStackValue;
+    }
+
+    public void UpdateEquipmentObjectStackValueInArray(int slotID, int stackValue)
+    {
+        if (equipmentObjectArray[slotID].objectInformationSO == null) Debug.LogError("ObjectInfoSO at " + slotID + " was empty!");
+        equipmentObjectArray[slotID].currentStackValue = stackValue;
+    }
+
+    public int GetEquipmentObjectStackValue(int slotID)
+    {
+        return equipmentObjectArray[slotID].currentStackValue;
     }
 }

@@ -21,9 +21,12 @@ public class BaseObject : MonoBehaviour
     
     protected int currentStackVal;
     protected int maxStackVal = 64;
+    private bool isPickable = false;
+    private Collider[] _hitColliders;
 
     protected void Awake()
     {
+        _hitColliders = new Collider[maxStackVal];
         rb = GetComponent<Rigidbody>();
         currentStackVal = objectInfoSO.objectValue;
     }
@@ -31,6 +34,7 @@ public class BaseObject : MonoBehaviour
     protected void Start()
     {
         ThrowVisual();
+        StartCoroutine(PickupDelay());
     }
 
     private void OnDrawGizmosSelected()
@@ -39,12 +43,19 @@ public class BaseObject : MonoBehaviour
         Gizmos.DrawSphere(transform.position, sphereItemDetectionRadius);
     }
 
+    private void OnEnable()
+    {
+        ThrowVisual();
+    }
+
+    public void SetStackValue(int value)
+    {
+        currentStackVal = value;
+    }
+
     protected virtual void Update()
     {
-        if (Input.GetKeyDown(KeyCode.T))
-        {
-            ThrowVisual();
-        }
+        SpinVisual();
         if (currentStackVal >= maxStackVal) return;
         MergeItems(GetSameNearbyItems());
     }
@@ -53,7 +64,7 @@ public class BaseObject : MonoBehaviour
     {
         foreach (BaseObject baseObject in baseObjects)
         {
-            StartCoroutine(MergeDelay());
+            //? StartCoroutine(MergeDelay());
             currentStackVal += baseObject.currentStackVal;
             if(baseObject.gameObject != null)
                 Destroy(baseObject.gameObject);
@@ -63,12 +74,11 @@ public class BaseObject : MonoBehaviour
 
     public List<BaseObject> GetSameNearbyItems()
     {
-        Collider[] hitColliders = new Collider[maxStackVal];
-        int numColliders = Physics.OverlapSphereNonAlloc(transform.position, sphereItemDetectionRadius, hitColliders, objectLayerMask);
+        int numColliders = Physics.OverlapSphereNonAlloc(transform.position, sphereItemDetectionRadius, _hitColliders, objectLayerMask);
         for (int i = 0; i < numColliders; i++)
         {
-            if (hitColliders[i].transform.root == transform) continue;
-            if(hitColliders[i].TryGetComponent<BaseObject>(out BaseObject baseObject))
+            if (_hitColliders[i].transform.root == transform) continue;
+            if(_hitColliders[i].TryGetComponent<BaseObject>(out BaseObject baseObject))
             {
                 if (sameObjectsNearby.Contains(baseObject)) continue;
                 sameObjectsNearby.Add(baseObject);
@@ -81,6 +91,12 @@ public class BaseObject : MonoBehaviour
     IEnumerator MergeDelay(float mergeDelayTime = .05f)
     {
         yield return new WaitForSeconds(mergeDelayTime);
+    }
+
+    IEnumerator PickupDelay(float pickupDelayTime = 1.5f)
+    {
+        yield return new WaitForSeconds(pickupDelayTime);
+        isPickable = true;
     }
     
     public ObjectInformationSO GetObjectInfoSO()
@@ -98,7 +114,18 @@ public class BaseObject : MonoBehaviour
     public void ThrowVisual()
     {
         Vector3 direction = new Vector3(Random.Range(0, 10), Random.Range(0, 10), Random.Range(0, 10));
-        float force = Random.Range(5, 10);
+        float force = Random.Range(15, 20);
         rb.AddForce(direction * force);
+    }
+
+    private void SpinVisual()
+    {
+        float spinAddAmount = 360f * Time.deltaTime;
+        transform.eulerAngles += new Vector3(0, spinAddAmount, 0);
+    }
+
+    public bool IsPickable()
+    {
+        return isPickable;
     }
 }

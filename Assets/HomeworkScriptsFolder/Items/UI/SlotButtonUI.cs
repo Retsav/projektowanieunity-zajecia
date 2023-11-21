@@ -12,7 +12,10 @@ public class SlotButtonUI : MonoBehaviour
      [SerializeField] private Button button;
      public Image itemImage;
      public TextMeshProUGUI itemValueText;
-     public EquipmentSlot equipObject;
+     private int slotID;
+
+     public ObjectInformationSO objectInformationSO;
+     public int currentStackValue;
 
 
      private void Start()
@@ -20,17 +23,15 @@ public class SlotButtonUI : MonoBehaviour
           button.onClick.AddListener(HandlePassing);
      }
 
-
+     
      private void HandlePassing()
      {
-          if (equipObject == null)
+          if (objectInformationSO == null)
           {
-               Debug.Log("EquipObject was Null!!");
                TryPassMouseContainerToSlotButton();
           }
           else
           { 
-               Debug.Log("EquipObject was not Null!!");
               TryPassObjectToMouseContainer();  
           }
      }
@@ -41,17 +42,18 @@ public class SlotButtonUI : MonoBehaviour
           if (MouseContainerUI.Instance.IsMouseContainerTaken())
           {
                if (MouseContainerUI.Instance.GetMouseEquipmentObjectID() ==
-                   equipObject.baseObject.GetObjectInfoSO().objectID)
+                   objectInformationSO.objectID)
                {
-                    equipObject.currentStackValue += MouseContainerUI.Instance.GetMouseEquipmentCurrentStackValue();
-                    itemValueText.text = equipObject.currentStackValue.ToString();
+                    currentStackValue += MouseContainerUI.Instance.GetMouseEquipmentCurrentStackValue();
+                    EquipmentSystem.Instance.UpdateEquipmentObjectStackValueInArray(slotID, currentStackValue);
+                    itemValueText.text = currentStackValue.ToString();
                     MouseContainerUI.Instance.ClearMouseContainer();
                }
           }
           else
           {
-               MouseContainerUI.Instance.TryToSetMouseContainerEquipObject(equipObject, itemImage.sprite, equipObject.currentStackValue);
-               EquipmentSystem.Instance.RemoveEquipmentObjectFromList(equipObject);
+               MouseContainerUI.Instance.TryToSetMouseContainerEquipObject(objectInformationSO, EquipmentSystem.Instance.GetEquipmentObjectStackValue(slotID));
+               EquipmentSystem.Instance.RemoveEquipmentObjectFromArray(slotID);
                ClearEquipmentObject();    
           }
      }
@@ -60,24 +62,29 @@ public class SlotButtonUI : MonoBehaviour
      {
           if (!MouseContainerUI.Instance.IsMouseContainerTaken()) return;
           SetSlotButton(
-               MouseContainerUI.Instance.equipObject, 
-               MouseContainerUI.Instance.itemImage.sprite, 
+               MouseContainerUI.Instance.objectInformationSO, 
                MouseContainerUI.Instance.GetMouseEquipmentCurrentStackValue());
-          EquipmentSystem.Instance.AddEquipmentObjectToList(equipObject);
+          EquipmentSystem.Instance.AddEquipmentObjectToList(objectInformationSO, currentStackValue, slotID);
           MouseContainerUI.Instance.ClearMouseContainer();
      }
      
      private void ClearEquipmentObject()
      {
-          equipObject = null;
+          objectInformationSO = null;
           itemImage.sprite = null;
           itemValueText.text = "";
      }
 
-     public void SetSlotButton(EquipmentSlot equipObject, Sprite itemSprite, int currentStackValue)
+     public void SetSlotButton(ObjectInformationSO objectInformationSO, int currentStackValue)
      {
-          this.equipObject = equipObject;
-          itemImage.sprite = itemSprite;
+          this.objectInformationSO = objectInformationSO;
+          this.currentStackValue = currentStackValue;
+          itemImage.sprite = objectInformationSO.objectImage;
           itemValueText.text = currentStackValue.ToString();
+     }
+
+     public void SetSlotID(int id)
+     {
+          slotID = id;
      }
 }

@@ -6,8 +6,9 @@ using UnityEngine.UI;
 [CreateAssetMenu()]
 public class ObjectInformationSO : ScriptableObject
 {
-        public string objectName;
-        public Sprite objectImage;
-        public int objectValue;
-        public int objectID;
+    public string objectName;
+    public GameObject objectPrefab;
+    public Sprite objectImage;
+    public int objectValue;
+    public int objectID;
 }
