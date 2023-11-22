@@ -9,7 +9,6 @@ public class PlayerToolUse : MonoBehaviour
     [Header("References")]
     [SerializeField] private Transform rayTransformPoint;
     [SerializeField] private LayerMask worldObjectLayer;
-    [SerializeField] private EquipmentSystemUI equipmentSystemUI;
     [Header("Settings")]
     [SerializeField] private float raySphereDistance = 2f;
     [SerializeField] private float raySphereRadius = .1f;
@@ -19,7 +18,7 @@ public class PlayerToolUse : MonoBehaviour
     private void Update()
     {
         if (!Input.GetMouseButtonDown(0)) return;
-        if (equipmentSystemUI.IsEquipmentUIActive()) return;
+        if (EquipmentSystemUI.Instance.IsEquipmentUIActive()) return;
         if (Physics.SphereCast(rayTransformPoint.position, raySphereRadius, transform.forward, out RaycastHit hit,
                 raySphereDistance, worldObjectLayer))
         {

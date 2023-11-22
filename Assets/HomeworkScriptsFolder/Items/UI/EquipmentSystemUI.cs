@@ -8,15 +8,28 @@ using UnityEngine.UI;
 
 public class EquipmentSystemUI : MonoBehaviour
 {
+    public static EquipmentSystemUI Instance { get; private set; }
+    
+    
     [Header("References")]
     [SerializeField] private GameObject equipmentSystemUI;
     [SerializeField] private GameObject slotGrid;
-    [SerializeField] private Transform playerObjectDropTransform;
     
     
     
     private List<SlotButtonUI> slotButtons = new();
     private bool isActive;
+
+    private void Awake()
+    {
+        if (Instance != null)
+        {
+            Debug.LogError("There is more than one EquipmentSystemUI! " + transform + " - " + Instance);
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
+    }
 
     private void Update()
     {
@@ -44,7 +57,7 @@ public class EquipmentSystemUI : MonoBehaviour
             if (!MouseContainerUI.Instance.IsMouseContainerTaken()) return;
             GameObject droppedObject = Instantiate(
                 MouseContainerUI.Instance.objectInformationSO.objectPrefab,
-                playerObjectDropTransform.position, 
+                Player.Instance.GetPlayerObjectDropTransform().position, 
                 Quaternion.identity);
             if (droppedObject.TryGetComponent(out BaseObject droppedBaseObject))
             {
