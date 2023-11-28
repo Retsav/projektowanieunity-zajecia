@@ -1641,6 +1641,7 @@ GameObject:
   - component: {fileID: 921802052}
   - component: {fileID: 921802051}
   - component: {fileID: 921802055}
+  - component: {fileID: 921802056}
   m_Layer: 5
   m_Name: UI
   m_TagString: Untagged
@@ -1745,6 +1746,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   equipmentSystemUI: {fileID: 2050211227}
   slotGrid: {fileID: 1774973417}
+--- !u!114 &921802056
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 921802050}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3c2354e4230b5bf4eba19a7205317cf2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  damageCounterGameObject: {fileID: 5649140713581608428, guid: 6a8d0ae59c5ad1e46ac50d07eaa47f97,
+    type: 3}
 --- !u!1001 &927657712
 PrefabInstance:
   m_ObjectHideFlags: 0

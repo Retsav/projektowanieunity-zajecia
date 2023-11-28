@@ -7,6 +7,7 @@ public abstract class WorldObject : MonoBehaviour
 {
     protected float worldObjectMaxHealth = 100f;
     protected float worldObjectCurrentHealth;
+    private bool beenHit;
 
     protected virtual void Awake()
     {
@@ -15,6 +16,9 @@ public abstract class WorldObject : MonoBehaviour
 
     public void DamageWorldObject(float damageVal)
     {
+        if (beenHit) return;
+        beenHit = true;
+        StartCoroutine(ResetHit());
         worldObjectCurrentHealth -= damageVal;
         if (worldObjectCurrentHealth <= 0)
         {
@@ -25,5 +29,11 @@ public abstract class WorldObject : MonoBehaviour
     protected virtual void DestroyWorldObject()
     {
         Destroy(gameObject);
+    }
+
+    IEnumerator ResetHit()
+    {
+        yield return new WaitUntil(() => !PlayerToolUse.Instance.GetIsSweeping());
+        beenHit = false;
     }
 }

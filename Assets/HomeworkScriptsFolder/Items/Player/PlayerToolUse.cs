@@ -3,39 +3,51 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Serialization;
 
 public class PlayerToolUse : MonoBehaviour
 {
+    public static PlayerToolUse Instance { get; private set; }
+    
+    
     [Header("References")]
-    [SerializeField] private Transform rayTransformPoint;
-    [SerializeField] private LayerMask worldObjectLayer;
+    [SerializeField] private Animator animator;
     [Header("Settings")]
-    [SerializeField] private float raySphereDistance = 2f;
-    [SerializeField] private float raySphereRadius = .1f;
     [SerializeField] private float toolDamage = 20f;
 
 
+    private const string ATTACK_TRIGGER = "Attack";
+    private bool isSweeping;
+
+
+    private void Awake()
+    {
+        if (Instance != null)
+        {
+            Debug.LogError("There is more than one PlayerToolUse Instance!");
+            Destroy(this);
+            return;
+        }
+        Instance = this;
+    }
     private void Update()
     {
         if (!Input.GetMouseButtonDown(0)) return;
         if (EquipmentSystemUI.Instance.IsEquipmentUIActive()) return;
-        if (Physics.SphereCast(rayTransformPoint.position, raySphereRadius, transform.forward, out RaycastHit hit,
-                raySphereDistance, worldObjectLayer))
-        {
-            if (hit.transform.TryGetComponent(out WorldObject worldObject))
-            {
-                worldObject.DamageWorldObject(toolDamage);
-            }
-            else
-            {
-                Debug.LogError("GameObject with WorldObject Layer does not have a WorldObject component!");
-            }
-        }
+        animator.SetTrigger(ATTACK_TRIGGER);
+    }
+    public void ChangeSphereActive(int isSweeping)
+    {
+        this.isSweeping = Convert.ToBoolean(isSweeping);
     }
 
-    private void OnDrawGizmosSelected()
+    public bool GetIsSweeping()
     {
-        Gizmos.color = Color.blue;
-        Gizmos.DrawSphere(rayTransformPoint.position + transform.forward, raySphereRadius * raySphereDistance);
+        return isSweeping;
+    }
+
+    public float GetDamage()
+    {
+        return toolDamage;
     }
 }
