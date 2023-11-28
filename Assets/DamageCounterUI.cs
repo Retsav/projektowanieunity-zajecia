@@ -10,10 +10,12 @@ public class DamageCounterUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI damageCounterGameObject;
     private void Start()
     {
-        AxeHitHandler.Instance.OnDamage += AxeHitHandler_OnOnDamage;
+        AxeHitHandler.OnDamage += OnDamage;
+        LogsFallDamageHandler.Instance.SendDamageToUI += OnDamage;
+        TreeEvents.TreeDealtDamage += OnDamage;
     }
 
-    private void AxeHitHandler_OnOnDamage(object sender, AxeHitHandler.OnDamageEventArgs e)
+    private void OnDamage(object sender, OnDamageEventArgs e)
     {
         Vector3 position = GetCamera.Instance.GetMainCamera().WorldToScreenPoint(e.contactPos);
         TextMeshProUGUI damageCounterText = Instantiate(damageCounterGameObject, position, Quaternion.identity, transform);

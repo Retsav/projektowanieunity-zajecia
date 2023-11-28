@@ -8,6 +8,8 @@ public abstract class WorldObject : MonoBehaviour
     protected float worldObjectMaxHealth = 100f;
     protected float worldObjectCurrentHealth;
     private bool beenHit;
+  
+    
 
     protected virtual void Awake()
     {
